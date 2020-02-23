@@ -49,7 +49,7 @@ def download_video(url):
     ydl_opts = {
         'writethumbnail': True,
         'format': 'bestaudio/best',
-        'outtmpl': './tmp/%(title)s.%(ext)s',
+        'outtmpl': './dl_songs/%(title)s.%(ext)s',
         'postprocessors': [
             {
                 'key': 'FFmpegExtractAudio',
@@ -119,35 +119,6 @@ def delete_file(filename):
         print(f'{Colors.FAIL}Die Datei "{filename}" konnte nicht geloescht werden\nERROR: {msg}{Colors.ENDC}')
 
 
-
-
-
-# Nicht mehr notwendig
-
-def download_video_with_command_line(url):
-    try:
-        subprocess.run(['youtube-dl', '--extract-audio',
-                        '--audio-format',
-                        'mp3',
-                        '--output',
-                        './tmp/%(title)s.%(ext)s',
-                        '--embed-thumbnail',
-                        '--add-metadata',
-                        url])
-        print(
-            f"{Colors.OKGREEN}Das Video wurde erfolgreich heruntergeladen und zu {audio_format} konvertiert{Colors.ENDC}")
-    except:
-        print(f"{Colors.FAIL}Die URL:\n{url}\nkonnte nicht heruntergeladen werden.{Colors.ENDC}")
-
-
-def move_to_download_folder(filename):
-    try:
-        shutil.move(f'{filename}.{audio_format}', f'tmp/{filename}.{audio_format}')
-        print(f"Die Datei {filename}.{audio_format} wurde in tmp verschoben")
-    except FileNotFoundError as msg:
-        print(f'{Colors.FAIL}Die Datei "{filename}" konnte nicht verschoben werden\nERROR: {msg}{Colors.ENDC}')
-
-
 def folder_to_zip(foldername):
     file_paths = []
 
@@ -165,7 +136,7 @@ def folder_to_zip(foldername):
         print(file_name)
 
         # writing files to a zipfile
-    with ZipFile('downloaded_songs.zip', 'w') as zip:
+    with ZipFile('./json_requested_songs/songs.zip', 'w') as zip:
         # writing each file one by one
         for file in file_paths:
             zip.write(file)
@@ -174,3 +145,32 @@ def folder_to_zip(foldername):
 
     for file_name in file_paths:
         delete_file(file_name)
+
+
+
+# Nicht mehr notwendig
+
+def download_video_with_command_line(url):
+    try:
+        subprocess.run(['youtube-dl', '--extract-audio',
+                        '--audio-format',
+                        'mp3',
+                        '--output',
+                        './dl_songs/%(title)s.%(ext)s',
+                        '--embed-thumbnail',
+                        '--add-metadata',
+                        url])
+        print(
+            f"{Colors.OKGREEN}Das Video wurde erfolgreich heruntergeladen und zu {audio_format} konvertiert{Colors.ENDC}")
+    except:
+        print(f"{Colors.FAIL}Die URL:\n{url}\nkonnte nicht heruntergeladen werden.{Colors.ENDC}")
+
+
+def move_to_download_folder(filename):
+    try:
+        shutil.move(f'{filename}.{audio_format}', f'dl_songs/{filename}.{audio_format}')
+        print(f"Die Datei {filename}.{audio_format} wurde in dl_songs verschoben")
+    except FileNotFoundError as msg:
+        print(f'{Colors.FAIL}Die Datei "{filename}" konnte nicht verschoben werden\nERROR: {msg}{Colors.ENDC}')
+
+
