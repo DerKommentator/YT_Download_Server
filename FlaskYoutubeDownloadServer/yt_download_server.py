@@ -6,19 +6,23 @@ import glob
 import sys
 import zipfile
 from os.path import isfile, join
+import socket
 
 from werkzeug.wsgi import FileWrapper
 
 from flask import Flask, request, send_file, Response, send_from_directory
+from flask_socketio import SocketIO, emit
 
-from YTDownloader import yt_downloader
+import yt_downloader
 
 DOWNLOAD_SONGS_FOLDER = "./dl_songs"
 
 app = Flask(__name__)
-app.config['DOWNLOAD_SONGS_FOLDER'] = DOWNLOAD_SONGS_FOLDER
-ip = '127.0.0.1'
-port = 1337
+IP = '127.0.0.1'
+PORT = 1337
+
+
+
 
 
 @app.route('/')
@@ -26,7 +30,7 @@ def index():
     return (f'''
         <html>
             <body>
-                <form action="http://{ip}:{port}/download" method="post">
+                <form action="http://{IP}:{PORT}/download" method="post">
                     <input type="submit" name="Absenden"><br>
                     <p>URL List:</p>
                     <textarea name="urllist" cols="60" rows="35"></textarea>
@@ -34,6 +38,7 @@ def index():
             </body>
         </html>
     ''')
+
 
 
 @app.route('/download', methods=['POST'])
@@ -129,4 +134,17 @@ def write_download_list():
 
 
 if __name__ == '__main__':
-    app.run(host=ip, port=port, debug=True)
+    app.run(host=IP, port=PORT, debug=True)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((IP, 1338))
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print('Connected by', addr)
+            while True:
+                data = conn.recv(1024)
+                print(data)
+                if not data:
+                    break
+                conn.sendall(data)
